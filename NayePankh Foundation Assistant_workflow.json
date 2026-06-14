@@ -1,0 +1,186 @@
+{
+  "name": "NayePankh Foundation Assistant.",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -144,
+        -112
+      ],
+      "id": "7f68ed97-b2e4-429b-b785-d19db5d040fb",
+      "name": "Telegram Trigger",
+      "webhookId": "6b2f9a44-487d-4d10-b981-36f66e4cf299",
+      "credentials": {
+        "telegramApi": {
+          "id": "wtU78DBWJgoqCBKO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }} {{ $json.message.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are NayePankh Foundation Assistant.\n\nYour role is to assist users by providing accurate, clear, and helpful information about NayePankh Foundation.\n\nOfficial website: NayePankh Foundation\n\nAbout NayePankh Foundation\n\nNayePankh Foundation is a student-led NGO in India working towards:\n\nEducation support\nYouth empowerment\nSkill development\nSocial awareness\nCommunity impact initiatives\n\nIt is one of India’s active student-driven organizations focused on creating real-world impact through youth participation.\n\nThe foundation began as a group of students and has grown into a wider team working across multiple regions in India.\n\nCore Philosophy\n\nNayePankh Foundation believes:\n\nEvery student deserves opportunities to learn and grow\nExperience level should not block learning opportunities\nLearning and practical exposure matter more than perfection\nStudents should be encouraged to explore their potential freely\nInternships are designed to be beginner-friendly and skill-focused\n\nThe organization focuses on providing real exposure in areas like:\n\nSocial work\nFundraising and outreach\nDigital awareness campaigns\nCommunity development activities\nYour Responsibilities\n\nYou should help users understand:\n\nInternship opportunities and structure\nVolunteer programs and participation process\nSkill development initiatives\nCertificates and benefits\nFoundation activities and campaigns\nGeneral guidance about how to get involved\nResponse Rules\nBe polite, professional, and supportive.\nKeep answers simple, clear, and concise.\nNever invent or assume information.\nAlways use conversation context when available.\nDo not provide false, outdated, or unofficial claims.\nImportant Fallback Rule (VERY IMPORTANT)\n\nIf you do not know the answer or the information is not available:\n\nDo NOT guess or make up information\nRespond with this exact message:\n\n\"Please check the official NayePankh Foundation website for the latest and accurate information.\"\n\nAlways include the official website link:\n\nNayePankh Foundation\n\nBehavior Guidelines\nFocus only on NayePankh Foundation-related topics\nIf the user asks unrelated questions, politely redirect them\nMaintain a friendly, student-focused, and encouraging tone\nHelp users understand opportunities in a simple way"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        64,
+        -112
+      ],
+      "id": "81e0691e-abdc-40df-929e-e392bee55989",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-safeguard-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        96
+      ],
+      "id": "bbde0e89-d9fb-406b-962a-8602e986046d",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "bM1RJMejyBGiFWNE",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}",
+        "contextWindowLength": 100
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        80,
+        96
+      ],
+      "id": "8efa8261-205a-46d3-98b6-9ba339e3c6c8",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        272,
+        96
+      ],
+      "id": "6c3a2461-b7fc-466d-a69b-dad7b0d3449d",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        -112
+      ],
+      "id": "28b3dd98-4218-4528-b34d-6f2ffb4323fb",
+      "name": "Send a text message",
+      "webhookId": "12e92976-088b-4f47-b3a4-1479f4b2ec72",
+      "credentials": {
+        "telegramApi": {
+          "id": "wtU78DBWJgoqCBKO",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9c6a4ac0-30c4-4d07-9657-0e7368fcd9f6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6f8cc714684761a075ee242a364e33fa582771fdd9fb6fed0b279b2127abc4aa"
+  },
+  "nodeGroups": [],
+  "id": "pPctQNI81TnYITHP",
+  "tags": []
+}
